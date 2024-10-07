@@ -2,8 +2,9 @@ import Link from 'next/link'
 import { CircleUser, Home, Menu, Package2, Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Logout } from '@/components/shared/Logout'
 
 export default function JobLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -55,10 +56,12 @@ export default function JobLayout({ children }: { children: React.ReactNode }) {
             </SheetContent>
           </Sheet>
           <div className='w-full flex-1'>
-            <Button variant='outline'>
-              <Plus className='h-4 w-4' />
-              New Job
-            </Button>
+            <Link href='/jobs/new'>
+              <Button variant='outline'>
+                <Plus className='h-4 w-4' />
+                New Job
+              </Button>
+            </Link>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -68,7 +71,7 @@ export default function JobLayout({ children }: { children: React.ReactNode }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <Logout />
             </DropdownMenuContent>
           </DropdownMenu>
         </header>

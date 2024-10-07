@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 
 import { apiUrl, storageKey } from '@/config'
 import { getStorage, removeStorage } from '@/lib/utils'
-import { Job } from '@/schemas/job'
+import { Job, JobFormRequestData, JobStatus } from '@/schemas/job'
 
 export interface PaginationProps {
   page: number
@@ -34,11 +35,62 @@ export const useJobs = ({ page, perPage }: PaginationProps) => {
         }
 
         const resData = await res.json()
+        if (resData.error) {
+          throw resData.error
+        }
 
         return resData?.jobs ? resData.jobs : []
       } catch (error) {
         return []
       }
+    }
+  })
+}
+
+export const useCreateJob = () => {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+
+  return useMutation({
+    mutationFn: async (data: JobFormRequestData) => {
+      const token = getStorage(storageKey.token)
+
+      try {
+        const res = await fetch(`${apiUrl}/v1/jobs`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            ...data,
+            status: JobStatus.OPEN
+          })
+        })
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            removeStorage(storageKey.token)
+            window.location.href = '/login'
+          }
+        }
+
+        const resData = await res.json()
+        if (resData.error) {
+          throw resData.error
+        }
+
+        if (resData.job) {
+          return resData.job as Job
+        }
+      } catch (error) {
+        throw error
+      }
+    },
+    onSuccess: (job: Job) => {
+      // invalidate the jobs query to refetch the data
+      queryClient.invalidateQueries({ queryKey: jobsQueryKey({ page: 1, perPage: PER_PAGE }) })
+      router.replace(`/jobs/${job.id}`)
     }
   })
 }

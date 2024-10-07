@@ -12,7 +12,7 @@ import { useLogin } from '@/hooks/useAuth'
 import { storageKey } from '@/config'
 import { getStorage } from '@/lib/utils'
 
-const defaultEmail = 'user_a@companya.com'
+const defaultEmail = 'admin_a@companya.com'
 
 export interface LoginFormProps {}
 

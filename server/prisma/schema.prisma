@@ -43,15 +43,18 @@ model User {
   name      String
   email     String   @unique
   role      Role     @default(USER)
+  jobs      Job[]
+  company   Company  @relation(fields: [companyId], references: [id])
+  companyId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  jobs      Job[]
 }
 
 model Company {
   id        String   @id @default(uuid())
   name      String
   jobs      Job[]
+  employers User[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

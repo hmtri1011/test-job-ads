@@ -85,10 +85,10 @@ export const useCreateJob = () => {
         throw error
       }
     },
-    onSuccess: (job: Job) => {
+    onSuccess: () => {
       // invalidate the jobs query to refetch the data
       queryClient.invalidateQueries({ queryKey: jobsQueryKey({ page: 1, perPage: PER_PAGE }) })
-      router.replace(`/jobs/${job.id}`)
+      router.replace(`/jobs`)
     }
   })
 }

@@ -8,7 +8,7 @@ export interface JobItemProps extends Job {}
 
 export const JobItem = ({ id, title, description, company, expiredAt, ownerId }: JobItemProps) => {
   return (
-    <Link href={`/jobs/${id}`}>
+    <Link href={`/jobs/${id}/edit`}>
       <Card className='relative w-full cursor-pointer'>
         <DeleteJobAction jobId={id} ownerId={ownerId} />
         <CardHeader className='pb-3'>

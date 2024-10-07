@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import { apiUrl, storageKey } from '@/config'
 import { getStorage, removeStorage } from '@/lib/utils'
@@ -175,6 +175,44 @@ export const useUpdateJob = () => {
 
       // invalidate the jobs query to refetch the data
       queryClient.invalidateQueries({ queryKey: ['@jobs'] })
+    }
+  })
+}
+
+export const useDeleteJob = () => {
+  const queryClient = useQueryClient()
+  const searchParams = useSearchParams()
+  const page = searchParams.get('page') || 1
+
+  const currentPage = page && !isNaN(Number(page)) ? Number(page) : 1
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = getStorage(storageKey.token)
+
+      try {
+        const res = await fetch(`${apiUrl}/v1/jobs/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            removeStorage(storageKey.token)
+            window.location.href = '/login'
+          }
+        }
+      } catch (error) {
+        throw error
+      }
+    },
+    onSuccess: (_, id) => {
+      // invalidate the jobs query to refetch the data
+      queryClient.setQueryData(jobsQueryKey({ page: currentPage, perPage: PER_PAGE }), (oldData: Job[] | undefined) => {
+        return oldData?.filter(job => job.id !== id)
+      })
     }
   })
 }

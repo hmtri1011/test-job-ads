@@ -24,7 +24,13 @@ export const JobList = ({ page, perPage }: JobListProps) => {
   const { data: jobs, isLoading } = useJobs({ page, perPage })
 
   if (isLoading) {
-    return Array.from({ length: perPage }).map((_, index) => <Skeleton key={index} className='w-full h-30' />)
+    return (
+      <div className='grid grid-cols-1 gap-4 w-full'>
+        {Array.from({ length: perPage }).map((_, index) => (
+          <Skeleton key={index} className='w-full h-36' />
+        ))}
+      </div>
+    )
   }
 
   return (

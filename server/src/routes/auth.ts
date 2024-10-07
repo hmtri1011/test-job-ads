@@ -1,7 +1,9 @@
 import express from 'express'
 import { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
+
 import { ERRORS } from '../config'
+import { validateToken } from '../middlewares/validateToken'
 
 const prisma = new PrismaClient()
 const authRoute = express.Router()
@@ -31,6 +33,12 @@ authRoute.post('/login', async (req, res) => {
     console.error(error)
     res.status(500).json({ error: ERRORS.INTERNAL_SERVER_ERROR })
   }
+})
+
+authRoute.get('/me', validateToken, async (_, res) => {
+  const user = res.locals.user
+
+  res.status(200).json({ user })
 })
 
 export { authRoute }

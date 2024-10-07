@@ -19,6 +19,7 @@ export interface LoginFormProps {}
 export const LoginForm = () => {
   const router = useRouter()
   const [email, setEmail] = useState(defaultEmail)
+
   const { mutate: login, isPending } = useLogin()
 
   // Redirect to jobs page if user is already logged in

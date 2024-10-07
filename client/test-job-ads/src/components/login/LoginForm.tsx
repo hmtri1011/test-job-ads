@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import { AccountModal } from '@/components/login/AccountModal'
 import { Button } from '@/components/ui/button'
@@ -8,14 +9,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useLogin } from '@/hooks/useAuth'
+import { storageKey } from '@/config'
+import { getStorage } from '@/lib/utils'
 
 const defaultEmail = 'user_a@companya.com'
 
 export interface LoginFormProps {}
 
 export const LoginForm = () => {
+  const router = useRouter()
   const [email, setEmail] = useState(defaultEmail)
-  const { mutate: login } = useLogin()
+  const { mutate: login, isPending } = useLogin()
+
+  // Redirect to jobs page if user is already logged in
+  useEffect(() => {
+    const token = getStorage(storageKey.token)
+
+    if (token) {
+      router.replace('/jobs')
+    }
+  }, [router])
 
   const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -45,7 +58,7 @@ export const LoginForm = () => {
               onChange={e => setEmail(e.target.value)}
             />
           </div>
-          <Button type='submit' className='w-full' disabled={!email}>
+          <Button type='submit' className='w-full' disabled={!email || isPending}>
             Login
           </Button>
         </form>

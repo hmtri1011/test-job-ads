@@ -24,7 +24,7 @@ export const AccountModal = ({ children }: AccountModalProps) => {
           <div>
             <p>Login to company A</p>
             <ul className='pl-6 list-disc'>
-              <li>amdin_a@companya.com</li>
+              <li>admin_a@companya.com</li>
               <li>admin_ab@companya.com</li>
               <li>user_a@companya.com</li>
             </ul>
@@ -33,7 +33,7 @@ export const AccountModal = ({ children }: AccountModalProps) => {
           <div>
             <p>Login to company B</p>
             <ul className='pl-6 list-disc'>
-              <li>amdin_b@companyb.com</li>
+              <li>admin_b@companyb.com</li>
               <li>admin_bb@companyb.com</li>
               <li>user_b@companyb.com</li>
             </ul>

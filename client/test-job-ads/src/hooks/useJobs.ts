@@ -10,9 +10,9 @@ export interface PaginationProps {
   perPage: number
 }
 
-export const jobsQueryKey = ({ page, perPage }: PaginationProps) => ['@jobs', page, perPage]
 export const PER_PAGE = 10
 
+export const jobsQueryKey = ({ page, perPage }: PaginationProps) => ['@jobs', page, perPage]
 export const useJobs = ({ page, perPage }: PaginationProps) => {
   return useQuery<Job[]>({
     queryKey: jobsQueryKey({ page, perPage }),
@@ -80,9 +80,7 @@ export const useCreateJob = () => {
           throw resData.error
         }
 
-        if (resData.job) {
-          return resData.job as Job
-        }
+        return resData.job as Job
       } catch (error) {
         throw error
       }
@@ -91,6 +89,92 @@ export const useCreateJob = () => {
       // invalidate the jobs query to refetch the data
       queryClient.invalidateQueries({ queryKey: jobsQueryKey({ page: 1, perPage: PER_PAGE }) })
       router.replace(`/jobs/${job.id}`)
+    }
+  })
+}
+
+export const jobByIdQueryKey = (id: string) => ['@job', id]
+export const useJobById = (id: string) => {
+  return useQuery({
+    queryKey: jobByIdQueryKey(id),
+    queryFn: async () => {
+      const token = getStorage(storageKey.token)
+
+      try {
+        const res = await fetch(`${apiUrl}/v1/jobs/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            removeStorage(storageKey.token)
+            window.location.href = '/login'
+          }
+        }
+
+        const resData = await res.json()
+
+        if (resData.error) {
+          throw resData.error
+        }
+
+        return resData.job as Job
+      } catch (error) {
+        return null
+      }
+    }
+  })
+}
+
+export const useUpdateJob = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (data: JobFormRequestData & { id: string }) => {
+      const token = getStorage(storageKey.token)
+
+      try {
+        const res = await fetch(`${apiUrl}/v1/jobs/${data.id}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            removeStorage(storageKey.token)
+            window.location.href = '/login'
+          }
+        }
+
+        const resData = await res.json()
+        if (resData.error) {
+          throw resData.error
+        }
+
+        return resData.job as Job
+      } catch (error) {
+        throw error
+      }
+    },
+    onSuccess: (_, data) => {
+      // optimistic update job detail
+      queryClient.setQueryData(jobByIdQueryKey(data.id), (oldData: Job | undefined) => {
+        if (!oldData) return oldData
+
+        return {
+          ...oldData,
+          ...data
+        }
+      })
+
+      // invalidate the jobs query to refetch the data
+      queryClient.invalidateQueries({ queryKey: ['@jobs'] })
     }
   })
 }

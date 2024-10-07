@@ -13,13 +13,14 @@ import { Textarea } from '@/components/ui/textarea'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { JobFormRequestData, JobFormSchema } from '@/schemas/job'
-import { useCreateJob } from '@/hooks/useJobs'
+import { useCreateJob, useUpdateJob } from '@/hooks/useJobs'
 
 export interface JobFormProps {
-  defaultValue?: JobFormRequestData
+  id?: string
+  defaultData?: JobFormRequestData
 }
 
-export const JobForm = ({ defaultValue }: JobFormProps) => {
+export const JobForm = ({ id, defaultData }: JobFormProps) => {
   const {
     register,
     handleSubmit,
@@ -28,10 +29,15 @@ export const JobForm = ({ defaultValue }: JobFormProps) => {
     formState: { errors }
   } = useForm({
     resolver: zodResolver(JobFormSchema),
-    defaultValues: defaultValue ? defaultValue : undefined
+    defaultValues: defaultData ? defaultData : undefined
   })
 
-  const { mutateAsync: createJob, isPending, error } = useCreateJob()
+  const isEdit = !!id
+  const { mutateAsync: createJob, isPending: pendingCreate, error: errorCreate } = useCreateJob()
+  const { mutateAsync: updateJob, isPending: pendingUpdate, error: errorUpdate } = useUpdateJob()
+
+  const isPending = isEdit ? pendingUpdate : pendingCreate
+  const error = isEdit ? errorUpdate : errorCreate
 
   const expiredAt = watch('expiredAt')
 
@@ -40,7 +46,11 @@ export const JobForm = ({ defaultValue }: JobFormProps) => {
   }
 
   const onSubmit = async (values: JobFormRequestData) => {
-    console.log(values)
+    if (isEdit) {
+      await updateJob({ id, ...values })
+      return
+    }
+
     await createJob(values)
   }
 
@@ -78,7 +88,7 @@ export const JobForm = ({ defaultValue }: JobFormProps) => {
       </CardContent>
       <CardFooter>
         <Button type='submit' className='w-full' disabled={isPending}>
-          Create Job Ad
+          {isEdit ? 'Update Job Ad' : 'Create Job Ad'}
         </Button>
       </CardFooter>
       {error && <p className='text-red-500 text-center -mt-3'>{JSON.stringify(error)}</p>}

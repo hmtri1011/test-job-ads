@@ -9,6 +9,14 @@ export const ERRORS = {
     code: '@400',
     message: 'Bad Request'
   },
+  PERMISSION_DENIED: {
+    code: '@403',
+    message: 'Permission denied, you are not allowed to perform this action or access this resource'
+  },
+  FORBIDDEN: {
+    code: '@403',
+    message: 'Forbidden'
+  },
   INTERNAL_SERVER_ERROR: {
     code: '@500',
     message: 'Internal Server Error'

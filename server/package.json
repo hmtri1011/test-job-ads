@@ -8,6 +8,7 @@
     "seed": "ts-node prisma/seed/seed.ts",
     "test": "jest --coverage",
     "build": "tsc",
+    "migrate:dev": "prisma migrate dev",
     "start": "node dist/src/index.js"
   },
   "engines": {

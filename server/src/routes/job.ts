@@ -126,4 +126,6 @@ jobRoute.delete('/:id', validateToken, async (req, res) => {
   res.status(204).send()
 })
 
+/* can enhance to have a cronjob to update the job status to expired if the expired date is before today */
+
 export { jobRoute }
